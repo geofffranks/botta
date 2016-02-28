@@ -4,32 +4,9 @@ README
 GODOCS
 TESTING
 
-Response:
-- StringVal
-- NumVal
-- BoolVal
-- MapVal
-- ArrayVal
-- Val
-
-httpRequest:
-- happy path returns http.Request, nil, headers set
-- json failure returns failure
-- http request failure returns failure
-
-Get - returns correct get request
-Post - returns correct post request
-Put - returns correct put request
-Patch - returns correct patch request
-Delete - returns correct delete request
-
-DefaultClient - returns default client
-
-Client - sets client
-
-BadResponseCode.Error - formats correctly
-
 Issue:
+
+ParseResponse:
 - failure to do request causes error
 - failure to read body causes error
 - failed HTTP status causes BadResponseCode error, with response object + decoded json if possible

@@ -8,12 +8,16 @@ import (
 	"net/http"
 )
 
-var client = DefaultClient()
+var client = &http.Client{}
 
-func httpRequest(method string, url string, data interface{}) (*http.Request, error) {
-	marshaled, err := json.Marshal(data)
-	if err != nil {
-		return nil, err
+func HttpRequest(method string, url string, data interface{}) (*http.Request, error) {
+	var marshaled []byte
+	var err error
+	if data != nil {
+		marshaled, err = json.Marshal(data)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	body := bytes.NewBuffer(marshaled)
@@ -28,23 +32,23 @@ func httpRequest(method string, url string, data interface{}) (*http.Request, er
 }
 
 func Get(url string) (*http.Request, error) {
-	return httpRequest("GET", url, nil)
+	return HttpRequest("GET", url, nil)
 }
 
 func Post(url string, data interface{}) (*http.Request, error) {
-	return httpRequest("POST", url, data)
+	return HttpRequest("POST", url, data)
 }
 
 func Put(url string, data interface{}) (*http.Request, error) {
-	return httpRequest("PUT", url, data)
+	return HttpRequest("PUT", url, data)
 }
 
 func Patch(url string, data interface{}) (*http.Request, error) {
-	return httpRequest("PATCH", url, data)
+	return HttpRequest("PATCH", url, data)
 }
 
 func Delete(url string) (*http.Request, error) {
-	return httpRequest("DELETE", url, nil)
+	return HttpRequest("DELETE", url, nil)
 }
 
 func Issue(req *http.Request) (*Response, error) {
@@ -95,12 +99,12 @@ func ParseResponse(r *http.Response) (*Response, error) {
 	return resp, nil
 }
 
-func Client(c *http.Client) {
+func SetClient(c *http.Client) {
 	client = c
 }
 
-func DefaultClient() *http.Client {
-	return &http.Client{}
+func Client() *http.Client {
+	return client
 }
 
 type BadResponseCode struct {
