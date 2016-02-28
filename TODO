@@ -2,14 +2,3 @@ goapi:
 
 README
 GODOCS
-TESTING
-
-Issue:
-
-ParseResponse:
-- failure to do request causes error
-- failure to read body causes error
-- failed HTTP status causes BadResponseCode error, with response object + decoded json if possible
-- failed HTTP status causes BadResponseCode error with response object and no decoded data if not possible
-- failed json parsing on 200 causes error
-- happy path returns decoded interface data

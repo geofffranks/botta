@@ -7,6 +7,8 @@ import (
 	. "github.com/onsi/gomega"
 	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
+	"os"
 )
 
 func expect_body(req *http.Request, content string) {
@@ -138,19 +140,98 @@ var _ = Describe("HTTP Helpers", func() {
 			Expect(req).Should(BeNil())
 		})
 	})
-	Context("Issue()", func() {
-		It("should return errors from http.Client.Do()", func() {
-			resp, err := goapi.Issue(&http.Request{})
-			Expect(err).Should(HaveOccurred())
-			Expect(resp).Should(BeNil())
+	Context("http Request handling", func() {
+		var server *httptest.Server
+
+		BeforeEach(func() {
+			wd, err := os.Getwd()
+			Expect(err).ShouldNot(HaveOccurred())
+			server = httptest.NewServer(http.FileServer(http.Dir(wd + "/assets")))
 		})
-		It("should return a parsed response upon success", func() {
-			Skip("no tests written yet")
+		AfterEach(func() {
+			if server != nil {
+				server.Close()
+			}
 		})
-	})
-	Context("ParseResponse()", func() {
-		It("should have tests", func() {
-			Skip("No tests written yet")
+
+		var GET = func(path string, shouldSucceed bool) (*goapi.Response, error) {
+			req, err := goapi.Get(server.URL + path)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(req).ShouldNot(BeNil())
+
+			resp, err := goapi.Issue(req)
+			if shouldSucceed {
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(resp).ShouldNot(BeNil())
+			} else {
+				Expect(err).Should(HaveOccurred())
+			}
+			return resp, err
+		}
+
+		Context("Issue()", func() {
+			It("should return errors from http.Client.Do()", func() {
+				resp, err := goapi.Issue(&http.Request{})
+				Expect(err).Should(HaveOccurred())
+				Expect(resp).Should(BeNil())
+			})
+			It("should return a parsed response upon success", func() {
+				resp, _ := GET("/test", true)
+
+				Expect(resp.Raw).Should(MatchJSON(`"test successful"`))
+				Expect(resp.Data).Should(Equal(interface{}("test successful")))
+			})
+		})
+		Context("ParseResponse()", func() {
+			It("should parse json responses successfully", func() {
+				resp, _ := GET("/test_json", true)
+				Expect(resp.Data).Should(Equal(map[string]interface{}{
+					"valid": "json",
+				}))
+				Expect(resp.HTTPResponse).ShouldNot(BeNil())
+				Expect(resp.Raw).Should(MatchJSON(`{"valid":"json"}`))
+			})
+			It("should parse empty json responses successfully", func() {
+				resp, _ := GET("/empty", true)
+				Expect(resp).ShouldNot(BeNil())
+				Expect(resp.Data).Should(BeNil())
+				Expect(resp.HTTPResponse).ShouldNot(BeNil())
+				Expect(resp.Raw).Should(Equal([]byte{}))
+			})
+			It("should return an error for a 200 with invalid json", func() {
+				resp, _ := GET("/invalid", false)
+				Expect(resp).ShouldNot(BeNil())
+				Expect(resp.HTTPResponse).ShouldNot(BeNil())
+				Expect(resp.HTTPResponse.StatusCode).Should(Equal(200))
+				Expect(resp.Data).Should(BeNil())
+				Expect(resp.Raw).Should(Equal([]byte("invalid json\n")))
+			})
+			It("should return BadResponseCode error with decoded JSON response for status >= 400", func() {
+				if server != nil {
+					server.Close()
+				}
+				var jsonHandler http.HandlerFunc
+				jsonHandler = func(rw http.ResponseWriter, req *http.Request) {
+					rw.WriteHeader(404)
+					rw.Write([]byte(`{"error":"the server failed to find your content"}`))
+				}
+				server = httptest.NewServer(jsonHandler)
+
+				resp, err := GET("/not-there-json", false)
+				Expect(err.(goapi.BadResponseCode).StatusCode).Should(Equal(404))
+				Expect(resp.HTTPResponse).ShouldNot(BeNil())
+				Expect(resp.Data).Should(Equal(map[string]interface{}{
+					"error": "the server failed to find your content",
+				}))
+				Expect(resp.Raw).Should(MatchJSON(`{"error":"the server failed to find your content"}`))
+			})
+			It("should return BadResponseCode error with status >= 400", func() {
+				resp, err := GET("/not-there-no-json", false)
+				Expect(err.(goapi.BadResponseCode).StatusCode).Should(Equal(404))
+				Expect(resp.HTTPResponse).ShouldNot(BeNil())
+				Expect(resp.Data).Should(BeNil())
+				Expect(resp.Raw).Should(Equal([]byte("404 page not found\n")))
+			})
 		})
 	})
 	Context("Client()", func() {

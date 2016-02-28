@@ -69,7 +69,10 @@ func ParseResponse(r *http.Response) (*Response, error) {
 
 	// Decode json first to include in Response if possible
 	var o interface{}
-	jsonErr := json.Unmarshal(body, o)
+	var jsonErr error
+	if len(body) > 0 {
+		jsonErr = json.Unmarshal(body, &o)
+	}
 
 	resp := &Response{
 		HTTPResponse: r,
