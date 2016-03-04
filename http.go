@@ -1,4 +1,4 @@
-package goapi
+package botta
 
 import (
 	"bytes"
@@ -70,7 +70,7 @@ func Delete(url string) (*http.Request, error) {
 	return HttpRequest("DELETE", url, nil)
 }
 
-// Executes an HTTP request, using goapi's http client, and returns
+// Executes an HTTP request, using botta's http client, and returns
 // a validated and parsed response, ready for data inspection.
 func Issue(req *http.Request) (*Response, error) {
 	r, err := client.Do(req)

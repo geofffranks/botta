@@ -1,6 +1,6 @@
-# goapi - A simple to use JSON API parser in Go
+# botta - A simple to use JSON API parser in Go
 
-`goapi` is a simple-to-use library for sending/retrieving
+`botta` is a simple-to-use library for sending/retrieving
 arbitrary data to/from arbitrary HTTP APIs using JSON.
 
 It has helper functions for retreiving data paths, taking
@@ -24,11 +24,11 @@ most of the hassle out of type-casting.
 	//        }
 	//    ]
 	// }
-    req, err := goapi.Get("http://example.com")
+    req, err := botta.Get("http://example.com")
     if err != nil {
         panic("Couldn't create a request?")
     }
-    resp, err := goapi.Issue(req)
+    resp, err := botta.Issue(req)
     if err != nil {
 		if resp != nil {
 			msg = resp.StringVal("error")

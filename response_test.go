@@ -1,8 +1,8 @@
-package goapi_test
+package botta_test
 
 import (
-	"github.com/geofffranks/goapi"
-	"github.com/geofffranks/goapi/tree"
+	"github.com/geofffranks/botta"
+	"github.com/geofffranks/botta/tree"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"net/http"
@@ -10,7 +10,7 @@ import (
 
 var _ = Describe("Response Obj", func() {
 	httpResponse := &http.Response{}
-	response := goapi.Response{
+	response := botta.Response{
 		HTTPResponse: httpResponse,
 		Raw:          []byte(`{"json":"content returned from server"}`),
 		Data: map[string]interface{}{

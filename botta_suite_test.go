@@ -1,4 +1,4 @@
-package goapi_test
+package botta_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -6,8 +6,8 @@ import (
 	"testing"
 )
 
-func TestGoapi(t *testing.T) {
+func TestBotta(t *testing.T) {
 	RegisterFailHandler(Fail)
 
-	RunSpecs(t, "goapi Test Suite")
+	RunSpecs(t, "botta Test Suite")
 }

@@ -1,8 +1,8 @@
-package goapi_test
+package botta_test
 
 import (
 	"crypto/tls"
-	"github.com/geofffranks/goapi"
+	"github.com/geofffranks/botta"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"io/ioutil"
@@ -21,29 +21,29 @@ func expect_body(req *http.Request, content string) {
 var _ = Describe("HTTP Helpers", func() {
 	Context("HttpRequest()", func() {
 		It("should return an http.Request with encoded json if data provided", func() {
-			req, err := goapi.HttpRequest("GET", "https://localhost:1234/test", map[string]interface{}{"asdf": 1234})
+			req, err := botta.HttpRequest("GET", "https://localhost:1234/test", map[string]interface{}{"asdf": 1234})
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(req).ShouldNot(BeNil())
 			expect_body(req, `{"asdf":1234}`)
 		})
 		It("should return an http.Request without any payload if no data provided", func() {
-			req, err := goapi.HttpRequest("GET", "https://localhost:1234/test", nil)
+			req, err := botta.HttpRequest("GET", "https://localhost:1234/test", nil)
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(req).ShouldNot(BeNil())
 			expect_body(req, "")
 		})
 		It("should fail if JSON data could not be marshaled", func() {
-			req, err := goapi.HttpRequest("POST", "https://localhost:1234/test", map[int]string{1: "asdf"})
+			req, err := botta.HttpRequest("POST", "https://localhost:1234/test", map[int]string{1: "asdf"})
 			Expect(err).Should(HaveOccurred())
 			Expect(req).Should(BeNil())
 		})
 		It("should fail if http.NewRequest failed", func() {
-			req, err := goapi.HttpRequest("INVALID", "%", nil) // '%' is an invalid URL!
+			req, err := botta.HttpRequest("INVALID", "%", nil) // '%' is an invalid URL!
 			Expect(req).Should(BeNil())
 			Expect(err).Should(HaveOccurred())
 		})
 		It("should set Content-Type + Accept headers", func() {
-			req, err := goapi.HttpRequest("GET", "https://localhost:1234/test", nil)
+			req, err := botta.HttpRequest("GET", "https://localhost:1234/test", nil)
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(req).ShouldNot(BeNil())
 
@@ -51,14 +51,14 @@ var _ = Describe("HTTP Helpers", func() {
 			Expect(req.Header.Get("Accept")).Should(Equal("application/json"))
 		})
 		It("should use the specified method and URL in the request", func() {
-			req, err := goapi.HttpRequest("GET", "https://localhost:1234/test", nil)
+			req, err := botta.HttpRequest("GET", "https://localhost:1234/test", nil)
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(req).ShouldNot(BeNil())
 
 			Expect(req.Method).Should(Equal("GET"))
 			Expect(req.URL.String()).Should(Equal("https://localhost:1234/test"))
 
-			req, err = goapi.HttpRequest("POST", "https://myhost:1234/stuff", "ping")
+			req, err = botta.HttpRequest("POST", "https://myhost:1234/stuff", "ping")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(req).ShouldNot(BeNil())
 
@@ -68,7 +68,7 @@ var _ = Describe("HTTP Helpers", func() {
 	})
 	Context("Get()", func() {
 		It("should create a GET http.Request", func() {
-			req, err := goapi.Get("https://localhost:1234/get")
+			req, err := botta.Get("https://localhost:1234/get")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(req).ShouldNot(BeNil())
 			Expect(req.Method).Should(Equal("GET"))
@@ -76,14 +76,14 @@ var _ = Describe("HTTP Helpers", func() {
 			expect_body(req, "")
 		})
 		It("should return an error if unsuccessful", func() {
-			req, err := goapi.Get("%")
+			req, err := botta.Get("%")
 			Expect(err).Should(HaveOccurred())
 			Expect(req).Should(BeNil())
 		})
 	})
 	Context("Post()", func() {
 		It("should create a POST http.Request", func() {
-			req, err := goapi.Post("https://localhost:1234/post", "teststring")
+			req, err := botta.Post("https://localhost:1234/post", "teststring")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(req).ShouldNot(BeNil())
 			Expect(req.Method).Should(Equal("POST"))
@@ -91,28 +91,28 @@ var _ = Describe("HTTP Helpers", func() {
 			expect_body(req, `"teststring"`)
 		})
 		It("should return an error if unsuccessful", func() {
-			req, err := goapi.Post("%", nil)
+			req, err := botta.Post("%", nil)
 			Expect(err).Should(HaveOccurred())
 			Expect(req).Should(BeNil())
 		})
 	})
 	Context("Put()", func() {
 		It("should create a PUT http.Request", func() {
-			req, err := goapi.Put("https://localhost:1234/put", "testput")
+			req, err := botta.Put("https://localhost:1234/put", "testput")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(req.Method).Should(Equal("PUT"))
 			Expect(req.URL.String()).Should(Equal("https://localhost:1234/put"))
 			expect_body(req, `"testput"`)
 		})
 		It("should return an error if unsuccessful", func() {
-			req, err := goapi.Put("%", nil)
+			req, err := botta.Put("%", nil)
 			Expect(err).Should(HaveOccurred())
 			Expect(req).Should(BeNil())
 		})
 	})
 	Context("Patch()", func() {
 		It("should create a PATCH http.Request", func() {
-			req, err := goapi.Patch("https://localhost:1234/patch", "testpatch")
+			req, err := botta.Patch("https://localhost:1234/patch", "testpatch")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(req).ShouldNot(BeNil())
 			Expect(req.Method).Should(Equal("PATCH"))
@@ -120,14 +120,14 @@ var _ = Describe("HTTP Helpers", func() {
 			expect_body(req, `"testpatch"`)
 		})
 		It("should return an error if unsuccessful", func() {
-			req, err := goapi.Patch("%", nil)
+			req, err := botta.Patch("%", nil)
 			Expect(err).Should(HaveOccurred())
 			Expect(req).Should(BeNil())
 		})
 	})
 	Context("Delete()", func() {
 		It("should create a DELETE http.Request", func() {
-			req, err := goapi.Delete("https://localhost:1234/delete")
+			req, err := botta.Delete("https://localhost:1234/delete")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(req).ShouldNot(BeNil())
 			Expect(req.Method).Should(Equal("DELETE"))
@@ -135,7 +135,7 @@ var _ = Describe("HTTP Helpers", func() {
 			expect_body(req, "")
 		})
 		It("should return an error if unsuccessful", func() {
-			req, err := goapi.Delete("%")
+			req, err := botta.Delete("%")
 			Expect(err).Should(HaveOccurred())
 			Expect(req).Should(BeNil())
 		})
@@ -154,12 +154,12 @@ var _ = Describe("HTTP Helpers", func() {
 			}
 		})
 
-		var GET = func(path string, shouldSucceed bool) (*goapi.Response, error) {
-			req, err := goapi.Get(server.URL + path)
+		var GET = func(path string, shouldSucceed bool) (*botta.Response, error) {
+			req, err := botta.Get(server.URL + path)
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(req).ShouldNot(BeNil())
 
-			resp, err := goapi.Issue(req)
+			resp, err := botta.Issue(req)
 			if shouldSucceed {
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(resp).ShouldNot(BeNil())
@@ -171,7 +171,7 @@ var _ = Describe("HTTP Helpers", func() {
 
 		Context("Issue()", func() {
 			It("should return errors from http.Client.Do()", func() {
-				resp, err := goapi.Issue(&http.Request{})
+				resp, err := botta.Issue(&http.Request{})
 				Expect(err).Should(HaveOccurred())
 				Expect(resp).Should(BeNil())
 			})
@@ -218,7 +218,7 @@ var _ = Describe("HTTP Helpers", func() {
 				server = httptest.NewServer(jsonHandler)
 
 				resp, err := GET("/not-there-json", false)
-				Expect(err.(goapi.BadResponseCode).StatusCode).Should(Equal(404))
+				Expect(err.(botta.BadResponseCode).StatusCode).Should(Equal(404))
 				Expect(resp.HTTPResponse).ShouldNot(BeNil())
 				Expect(resp.Data).Should(Equal(map[string]interface{}{
 					"error": "the server failed to find your content",
@@ -227,7 +227,7 @@ var _ = Describe("HTTP Helpers", func() {
 			})
 			It("should return BadResponseCode error with status >= 400", func() {
 				resp, err := GET("/not-there-no-json", false)
-				Expect(err.(goapi.BadResponseCode).StatusCode).Should(Equal(404))
+				Expect(err.(botta.BadResponseCode).StatusCode).Should(Equal(404))
 				Expect(resp.HTTPResponse).ShouldNot(BeNil())
 				Expect(resp.Data).Should(BeNil())
 				Expect(resp.Raw).Should(Equal([]byte("404 page not found\n")))
@@ -236,7 +236,7 @@ var _ = Describe("HTTP Helpers", func() {
 	})
 	Context("Client()", func() {
 		It("should return a generic client by default", func() {
-			Expect(goapi.Client()).Should(Equal(&http.Client{}))
+			Expect(botta.Client()).Should(Equal(&http.Client{}))
 		})
 		It("should allow setting a custom http.Client()", func() {
 			client := &http.Client{
@@ -244,22 +244,22 @@ var _ = Describe("HTTP Helpers", func() {
 					TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 				},
 			}
-			goapi.SetClient(client)
+			botta.SetClient(client)
 
-			Expect(goapi.Client()).Should(Equal(client))
+			Expect(botta.Client()).Should(Equal(client))
 		})
 	})
 	Context("BadResponseCode", func() {
 		Context("Error()", func() {
 			It("returns an error message", func() {
-				err := goapi.BadResponseCode{
+				err := botta.BadResponseCode{
 					StatusCode: 123,
 					Message:    "this is an error",
 					URL:        "https://localhost/test",
 				}
 				Expect(err.Error()).Should(Equal("https://localhost/test returned 123: this is an error"))
 
-				err = goapi.BadResponseCode{
+				err = botta.BadResponseCode{
 					StatusCode: 321,
 					Message:    "this is a different error",
 					URL:        "http://asdf.com/",

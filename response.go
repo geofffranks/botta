@@ -1,7 +1,7 @@
-package goapi
+package botta
 
 import (
-	"github.com/geofffranks/goapi/tree"
+	"github.com/geofffranks/botta/tree"
 	"net/http"
 )
 
