@@ -1,36 +1,49 @@
 package goapi
 
 import (
-	"github.com/geofffranks/treefinder"
+	"github.com/geofffranks/goapi/tree"
 	"net/http"
 )
 
+// Represents the HTTP response from your API
 type Response struct {
 	HTTPResponse *http.Response
 	Raw          []byte
 	Data         interface{}
 }
 
+// Returns a string-typed value found in the JSON data
+// returned in the response, at `path`
 func (r *Response) StringVal(path string) (string, error) {
-	return treefinder.FindString(r.Data, path)
+	return tree.FindString(r.Data, path)
 }
 
-func (r *Response) NumVal(path string) (treefinder.Number, error) {
-	return treefinder.FindNum(r.Data, path)
+// Returns a tree.Number-typed value found in the JSON data
+// returned in the response, at `path`
+func (r *Response) NumVal(path string) (tree.Number, error) {
+	return tree.FindNum(r.Data, path)
 }
 
+// Returns a bool-typed value found in the JSON data
+// returned in the response, at `path`
 func (r *Response) BoolVal(path string) (bool, error) {
-	return treefinder.FindBool(r.Data, path)
+	return tree.FindBool(r.Data, path)
 }
 
+// Returns a map[string]interface{}-typed value found in the JSON data
+// returned in the response, at `path`
 func (r *Response) MapVal(path string) (map[string]interface{}, error) {
-	return treefinder.FindMap(r.Data, path)
+	return tree.FindMap(r.Data, path)
 }
 
+// Returns a []interface{}-typed value found in the JSON data
+// returned in the response, at `path`
 func (r *Response) ArrayVal(path string) ([]interface{}, error) {
-	return treefinder.FindArray(r.Data, path)
+	return tree.FindArray(r.Data, path)
 }
 
+// Returns an interface{} value found in the JSON data
+// returned in the response, at `path`
 func (r *Response) Val(path string) (interface{}, error) {
-	return treefinder.Find(r.Data, path)
+	return tree.Find(r.Data, path)
 }

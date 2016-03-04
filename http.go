@@ -10,6 +10,9 @@ import (
 
 var client = &http.Client{}
 
+// Prepares an HTTP request of `method` against `url`, encoding `data`
+// as JSON for the request payload. Automatically sets the `Content-Type`
+// and `Accept` headers to `application/json`.
 func HttpRequest(method string, url string, data interface{}) (*http.Request, error) {
 	var marshaled []byte
 	var err error
@@ -31,26 +34,44 @@ func HttpRequest(method string, url string, data interface{}) (*http.Request, er
 	return req, nil
 }
 
+// Prepares a GET request to the API located at `url`. Automatically
+// sets the `Content-Type` and `Accept` headers to `application/json`.
 func Get(url string) (*http.Request, error) {
 	return HttpRequest("GET", url, nil)
 }
 
+// Prepares a POST request to the API located at `url`, using
+// the provided `data`. Automatically sets the `Content-Type` and `Accept`
+// headers to `application/json`, and automatically encodes `data`
+// as a JSON payload to the request.
 func Post(url string, data interface{}) (*http.Request, error) {
 	return HttpRequest("POST", url, data)
 }
 
+// Prepares a PUT request to the API located at `url`, using
+// the provided `data`. Automatically sets the `Content-Type` and `Accept`
+// headers to `application/json`, and automatically encodes `data`
+// as a JSON payload to the request.
 func Put(url string, data interface{}) (*http.Request, error) {
 	return HttpRequest("PUT", url, data)
 }
 
+// Prepares a PATCH request to the API located at `url`, using
+// the provided `data`. Automatically sets the `Content-Type` and `Accept`
+// headers to `application/json`, and automatically encodes `data`
+// as a JSON payload to the request.
 func Patch(url string, data interface{}) (*http.Request, error) {
 	return HttpRequest("PATCH", url, data)
 }
 
+// Prepares a DELETE request to the API located at `url`. Automatically
+// sets the `Content-Type` and `Accept` headers to `application/json`.
 func Delete(url string) (*http.Request, error) {
 	return HttpRequest("DELETE", url, nil)
 }
 
+// Executes an HTTP request, using goapi's http client, and returns
+// a validated and parsed response, ready for data inspection.
 func Issue(req *http.Request) (*Response, error) {
 	r, err := client.Do(req)
 	if err != nil {
@@ -60,6 +81,12 @@ func Issue(req *http.Request) (*Response, error) {
 	return ParseResponse(r)
 }
 
+// Takes an HTTP response, and attempts to decode the payload
+// as JSON. Returns an error if the payload was not valid JSON.
+// If the response was a non-success HTTP status, a BadResponseCode
+// error. If the JSON payload was successfully decoded, it is returned
+// alongside the BadResponseCode error, so you can decode JSON error
+// messages easier.
 func ParseResponse(r *http.Response) (*Response, error) {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
@@ -102,20 +129,26 @@ func ParseResponse(r *http.Response) (*Response, error) {
 	return resp, nil
 }
 
+// Allows you to customize the HTTP client being used by Issue().
+// This is super-useful if you need to ignore SSL certificates, use
+// a proxy, or otherwise, modify the default HTTP client.
 func SetClient(c *http.Client) {
 	client = c
 }
 
+// Retrieves a reference to the HTTP client being used by Issue().
 func Client() *http.Client {
 	return client
 }
 
+// An error representing an HTTP response whose StatusCode was >= 400
 type BadResponseCode struct {
 	StatusCode int
 	Message    string
 	URL        string
 }
 
+// Formats an error message for the BadResponseCode error
 func (e BadResponseCode) Error() string {
 	return fmt.Sprintf("%s returned %d: %s", e.URL, e.StatusCode, e.Message)
 }

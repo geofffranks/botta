@@ -2,6 +2,7 @@ package goapi_test
 
 import (
 	"github.com/geofffranks/goapi"
+	"github.com/geofffranks/goapi/tree"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"net/http"
@@ -38,13 +39,11 @@ var _ = Describe("Response Obj", func() {
 
 	Context("Response.StringVal()", func() {
 		It("should fail when specified path does not point to a string", func() {
-			Skip("need working treefinder before tests will pass")
 			str, err := response.StringVal("number")
 			Expect(err).Should(HaveOccurred())
 			Expect(str).Should(Equal(""))
 		})
 		It("should succeed when specified path points to a string", func() {
-			Skip("need working treefinder before tests will pass")
 			str, err := response.StringVal("string")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(str).Should(Equal("asdf"))
@@ -53,28 +52,30 @@ var _ = Describe("Response Obj", func() {
 
 	Context("Response.NumVal()", func() {
 		It("should fail when specified path does not point to a number", func() {
-			Skip("need working treefinder before tests will pass")
 			num, err := response.NumVal("string")
 			Expect(err).Should(HaveOccurred())
-			Expect(num).Should(Equal(0))
+			Expect(num).Should(Equal(tree.Number(0)))
 		})
 		It("should succeed when specified path points to a number", func() {
-			Skip("need working treefinder before tests will pass")
 			num, err := response.NumVal("number")
 			Expect(err).ShouldNot(HaveOccurred())
-			Expect(num).Should(Equal(1234))
+			Expect(num).Should(Equal(tree.Number(1234)))
+
+			i, err := num.Int64()
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(i).Should(Equal(int64(1234)))
+			Expect(num.Float64()).Should(Equal(1234.0))
+			Expect(num.String()).Should(Equal("1234"))
 		})
 	})
 
 	Context("Response.BoolVal()", func() {
 		It("should fail when specified path does not point to a boolean", func() {
-			Skip("need working treefinder before tests will pass")
 			b, err := response.BoolVal("number")
 			Expect(err).Should(HaveOccurred())
 			Expect(b).Should(Equal(false))
 		})
 		It("should succeed when specified path points to a boolean", func() {
-			Skip("need working treefinder before tests will pass")
 			b, err := response.BoolVal("boolean")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(b).Should(BeTrue())
@@ -83,31 +84,31 @@ var _ = Describe("Response Obj", func() {
 
 	Context("Response.MapVal()", func() {
 		It("should fail when specified path does not point to a map", func() {
-			Skip("need working treefinder before tests will pass")
 			m, err := response.MapVal("number")
 			Expect(err).Should(HaveOccurred())
-			Expect(m).Should(Equal(nil))
+			Expect(m).Should(Equal(map[string]interface{}{}))
 		})
 		It("should succeed when specified path points to a m", func() {
-			Skip("need working treefinder before tests will pass")
 			m, err := response.MapVal("map")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(m).Should(Equal(map[string]interface{}{
 				"k": "v",
 				"n": 1,
 			}))
+
+			n, err := response.StringVal("map.k")
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(n).Should(Equal("v"))
 		})
 	})
 
 	Context("Response.ArrayVal()", func() {
 		It("should fail when specified path does not point to an array", func() {
-			Skip("need working treefinder before tests will pass")
 			a, err := response.ArrayVal("number")
 			Expect(err).Should(HaveOccurred())
 			Expect(a).Should(Equal([]interface{}{}))
 		})
 		It("should succeed when specified path points to an array", func() {
-			Skip("need working treefinder before tests will pass")
 			a, err := response.ArrayVal("array")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(a).Should(Equal([]interface{}{
@@ -115,18 +116,19 @@ var _ = Describe("Response Obj", func() {
 				2,
 				"fdsa",
 			}))
+
+			f, err := response.StringVal("array.[2]")
+			Expect(f).Should(Equal("fdsa"))
 		})
 	})
 
 	Context("Response.Val()", func() {
 		It("should fail when specified path does not point to something", func() {
-			Skip("need working treefinder before tests will pass")
 			i, err := response.Val("n'exist pas")
 			Expect(err).Should(HaveOccurred())
-			Expect(i).Should(Equal(nil))
+			Expect(i).Should(BeNil())
 		})
 		It("should succeed when specified path points to something ", func() {
-			Skip("need working treefinder before tests will pass")
 			i, err := response.Val("string")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(i).Should(Equal(interface{}("asdf")))
