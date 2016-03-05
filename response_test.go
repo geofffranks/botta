@@ -2,7 +2,7 @@ package botta_test
 
 import (
 	"github.com/geofffranks/botta"
-	"github.com/geofffranks/botta/tree"
+	"github.com/jhunt/tree"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"net/http"
@@ -60,12 +60,6 @@ var _ = Describe("Response Obj", func() {
 			num, err := response.NumVal("number")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(num).Should(Equal(tree.Number(1234)))
-
-			i, err := num.Int64()
-			Expect(err).ShouldNot(HaveOccurred())
-			Expect(i).Should(Equal(int64(1234)))
-			Expect(num.Float64()).Should(Equal(1234.0))
-			Expect(num.String()).Should(Equal("1234"))
 		})
 	})
 
