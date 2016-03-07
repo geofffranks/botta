@@ -1,7 +1,7 @@
 package botta
 
 import (
-	"github.com/geofffranks/botta/tree"
+	"github.com/jhunt/tree"
 	"net/http"
 )
 

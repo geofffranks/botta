@@ -21,6 +21,11 @@ func listFind(l []interface{}, fields []string, key string) (interface{}, uint64
 				if ok && value == key {
 					return v, uint64(i), true
 				}
+			case map[interface{}]interface{}:
+				value, ok := v.(map[interface{}]interface{})[field]
+				if ok && value == key {
+					return v, uint64(i), true
+				}
 			}
 		}
 	}
@@ -193,6 +198,16 @@ func (c *Cursor) Canonical(o interface{}) (*Cursor, error) {
 				}
 			}
 
+		case map[interface{}]interface{}:
+			canon.Push(k)
+			var ok bool
+			o, ok = o.(map[interface{}]interface{})[k]
+			if !ok {
+				return nil, NotFoundError{
+					Path: canon.Nodes,
+				}
+			}
+
 		default:
 			return nil, TypeMismatchError{
 				Path:   canon.Nodes,
@@ -231,6 +246,15 @@ func (c *Cursor) Glob(tree interface{}) ([]*Cursor, error) {
 			case map[string]interface{}:
 				for k, v := range o.(map[string]interface{}) {
 					sub, err := resolver(v, append(here, k), path, pos+1)
+					if err != nil {
+						return nil, err
+					}
+					paths = append(paths, sub...)
+				}
+
+			case map[interface{}]interface{}:
+				for k, v := range o.(map[interface{}]interface{}) {
+					sub, err := resolver(v, append(here, k.(string)), path, pos+1)
 					if err != nil {
 						return nil, err
 					}
@@ -279,6 +303,15 @@ func (c *Cursor) Glob(tree interface{}) ([]*Cursor, error) {
 				}
 				return resolver(v, append(here, k), path, pos+1)
 
+			case map[interface{}]interface{}:
+				v, ok := o.(map[interface{}]interface{})[k]
+				if !ok {
+					return nil, NotFoundError{
+						Path: path[0 : pos+1],
+					}
+				}
+				return resolver(v, append(here, k), path, pos+1)
+
 			default:
 				return nil, TypeMismatchError{
 					Path:   path[0:pos],
@@ -318,6 +351,15 @@ func (c *Cursor) Resolve(o interface{}) (interface{}, error) {
 		switch o.(type) {
 		case map[string]interface{}:
 			v, ok := o.(map[string]interface{})[k]
+			if !ok {
+				return nil, NotFoundError{
+					Path: path,
+				}
+			}
+			o = v
+
+		case map[interface{}]interface{}:
+			v, ok := o.(map[interface{}]interface{})[k]
 			if !ok {
 				return nil, NotFoundError{
 					Path: path,
