@@ -1,11 +1,12 @@
 package botta_test
 
 import (
+	"net/http"
+
 	"github.com/geofffranks/botta"
-	"github.com/jhunt/tree"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"net/http"
+	"github.com/starkandwayne/goutils/tree"
 )
 
 var _ = Describe("Response Obj", func() {
